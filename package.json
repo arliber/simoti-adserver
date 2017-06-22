@@ -1,0 +1,19 @@
+{
+  "name": "ad-server",
+  "version": "1.0.0",
+  "description": "Simoti snippets server microservice",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://LeoLiber@bitbucket.org/simoti/ad-server.git"
+  },
+  "keywords": [
+    "simoti"
+  ],
+  "author": "Simoti Co.",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/simoti/ad-server#readme"
+}
