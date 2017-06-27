@@ -3,7 +3,7 @@
 const snippetServer = require('./snippetServer');
 const cors = require('cors');
 
-module.exports.log = (req, res) => {
+module.exports.tagLogger = (req, res) => {
   var corsFn = cors();
   corsFn(req, res, function() {
     console.log(`Source: ${req.headers.referer?req.headers.referer:'unknown'}`, req.body);
@@ -23,4 +23,8 @@ module.exports.getSnippet = (req, res) => {
       res.status(200).send({error:'no referer'});
     }
   });
+};
+
+exports.event = (event, callback) => {
+  callback();
 };

@@ -19,8 +19,8 @@ package:
     - .git/**
 
 functions:
-  log:
-    handler: log
+  tagLogger:
+    handler: tagLogger
     events:
       - http: path
   getSnippet:
