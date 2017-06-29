@@ -17,6 +17,8 @@ module.exports.getSnippet = (req, res) => {
     if(req.headers.referer) {
       snippetServer.getSnippet(req.headers.referer).then((snippet) => {
         res.status(200).send(snippet);
+      }).catch((err) => {
+        res.status(210).send(err);
       });
     } else {
       console.error('getSnippet: Unknown referer in request');

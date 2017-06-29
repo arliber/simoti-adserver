@@ -33,18 +33,19 @@ function getArticleById(publisherId, articleId) {
   return datastore.get(key);
 }
 
-function saveNewArticle(publisherId, articleId) {
+function saveNewArticle(publisherId, articleId, articleUrl) {
   const key = datastore.key(['publishers', publisherId, 'articles', articleId]);
   const entity = {
       key,
       data: {
-        status: 'pending'
+        status: 'pending',
+        url: articleUrl
       }
   };
   return datastore.save(entity);
 }
 
-function getOrCreateArticle(publisherId, articleId) {
+function getOrCreateArticle(publisherId, articleId, articleUrl) {
   return new Promise((resolve, reject) => {
     let transaction = datastore.transaction();
     transaction.run(function(err) {
@@ -55,16 +56,23 @@ function getOrCreateArticle(publisherId, articleId) {
         // Search for article
         getArticleById(publisherId, articleId).then((articles) => {
           if(articles && articles[0]) { // Exists - return 
-            if(articles[0].status === 'assigned' && articles[0].snippet && articles[0].snippet.status === 'active') {
-              resolve(articles[0].snippet);
+            if(articles[0].status === 'assigned' && articles[0].snippetProperties && articles[0].snippetProperties.status === 'active' && articles[0].snippetHTML ) {
+              const snippet = Object.assign({}, articles[0].snippetProperties, { html: articles[0].snippetHTML })
+              resolve(snippet);
             } else {
               resolve({});
             }
           } else { // Doesn't exist - create
-            saveNewArticle(publisherId, articleId).then((err) => {
+            saveNewArticle(publisherId, articleId, articleUrl).then((err) => {
+              transaction.commit().catch((err) => {
+                console.error(`getOrCreateArticle: Unable to commit after successful article save`);
+              });
               resolve({});
             }).catch((err) => {
-              console.error(`getOrCreateArticle: Unable to create a new article with id [${articleId}]`, err);
+              transaction.commit().catch((err) => {
+                console.error(`getOrCreateArticle: Unable to commit after failed article save`);
+              });
+              console.error(`Unable to to save new article for url [${articleUrl}]`, err);
               reject({error: `unable to create new article with id [${articleId}]`});
             }); 
           }
@@ -95,7 +103,7 @@ exports.getSnippet = (url) => {
         } else {
           // Extract article id
           let articleId = getArtcileId(url, publisher[0].articleIdRegex);
-          getOrCreateArticle(publisherDomain, articleId).then((res) => {
+          getOrCreateArticle(publisherDomain, articleId, url).then((res) => {
             console.time('getSnippet');
             resolve(res);
           }).catch((err) =>{
