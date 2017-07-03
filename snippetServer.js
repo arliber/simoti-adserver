@@ -4,33 +4,63 @@ var datastore = require('@google-cloud/datastore')({
 });
 
 function getPublisherDomain(url) {
-  const regex = /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/\n]+)/ig;
+  const regex = /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(?:m\.)?([^:\/\n]+)/ig;
+  //                                                       ^_____^ Ignore m. prefix for mobiles sites
   let groups = regex.exec(url);
   if(!groups || groups.length < 2) {
+    console.error(`getPublisherDomain: Unable to extract publisher doamin from [${url}]`);
     return null;
   } else {
     return groups[1];
   }
 }
 
-function getPublisherByDomain(publisherDomain, cb) {
+function getPublisherByDomain(publisherDomain) {
   let key = datastore.key(['publishers', publisherDomain]);
-  return datastore.get(key);
+  return datastore.get(key).then((publishers) => {
+    if(!publishers[0]) {
+      console.error(`getPublisherByDomain: Publisher [${publisherDomain}] was not found`);
+      return null;    
+    } else {
+      return publishers[0];
+    }
+  }).catch((err) => {
+    console.error(`getPublisherByDomain: Searching for publisher [${publisherDomain}] errored`, err);
+    return null;
+  });
 }
 
 function getArtcileId(url, articleIdRegex) {
   const regex = new RegExp(articleIdRegex, 'ig');
   let groups = regex.exec(url);
   if(!groups || groups.length < 2) {
+    console.error(`getArtcileId: Unable to extract article id from [${url}] using regex [${articleIdRegex}]`);
     return null;
   } else {
     return groups[1];
   }
 }
 
+function isArticleValid(article) {
+  const isValid = (article.status === 'assigned' && article.snippetProperties && article.snippetProperties.status === 'active' && article.snippetHTML);
+  if(!isValid) {
+    console.log(`isArticleValid: Invalid article`, article);
+  }
+  return isValid;
+}
+
 function getArticleById(publisherId, articleId) {
   let key = datastore.key(['publishers', publisherId, 'articles', articleId]);
-  return datastore.get(key);
+  return datastore.get(key).then((articles) => {
+    if(!articles[0]) {
+      console.error(`getArticleById: Unable to find article id [${articleId}] for publisher id [${publisherId}]`);
+      return null;
+    } else {
+      return articles[0];
+    }
+  }).catch((e) => {
+    console.error(`getArticleById: Error in searching for article id [${articleId}] for publisher id [${publisherId}]`, err);
+  });
 }
 
 function saveNewArticle(publisherId, articleId, articleUrl) {
@@ -50,14 +80,13 @@ function getOrCreateArticle(publisherId, articleId, articleUrl) {
     let transaction = datastore.transaction();
     transaction.run(function(err) {
       if (err) {
-        console.error(`getOrCreateArticle: Unable to create transaction while processing article [${articleId}]`);
+        console.error(`getOrCreateArticle: Unable to create transaction while processing article [${articleUrl}]`);
         reject({error: 'unable to create transaction'});
       } else {
-        // Search for article
-        getArticleById(publisherId, articleId).then((articles) => {
-          if(articles && articles[0]) { // Exists - return 
-            if(articles[0].status === 'assigned' && articles[0].snippetProperties && articles[0].snippetProperties.status === 'active' && articles[0].snippetHTML ) {
-              const snippet = Object.assign({}, articles[0].snippetProperties, { html: articles[0].snippetHTML })
+        getArticleById(publisherId, articleId).then((article) => {
+          if(article) { // Exists - return 
+            if(isArticleValid(article)) {
+              const snippet = Object.assign({}, article.snippetProperties, { html: article.snippetHTML })
               resolve(snippet);
             } else {
               resolve({});
@@ -85,32 +114,32 @@ function getOrCreateArticle(publisherId, articleId, articleUrl) {
 exports.getSnippet = (url) => {
   
   console.time('getSnippet');
+  console.log(`getSnippet: Starting working on url [${url}]`);
 
-  return new Promise((resolve, reject) => {
-    // Get publisher domain
+  return new Promise((s, e) => {
+    // resolve/reject helpers
+    resolve = (val) => { console.timeEnd('getSnippet'); s(val); };
+    reject = (val) => { console.timeEnd('getSnippet'); e(val); };
+
     const publisherDomain = getPublisherDomain(url);
+    console.log(`getSnippet: Publisher domain [${publisherDomain}]`);
+    
     if(!publisherDomain) {
-      console.error(`getSnippet: Unable to extract publisher name from [${url}]`);
-      resolve({error: 'publisher not found'});
+      reject({error: 'publisher not found'});
     } else {
-      // Get publisher entiy
       getPublisherByDomain(publisherDomain)
       .then((publisher) => {
-        if(!publisher[0]) {
-          console.time('getSnippet');
-          console.error(`getSnippet: Publisher [${publisherDomain}] was not found`);
-          reject({error: `publisher [${publisherDomain}] does not exist`})
+        if(!publisher) {
+          reject({error: `publisher [${publisherDomain}] does not exist`});
         } else {
-          // Extract article id
-          let articleId = getArtcileId(url, publisher[0].articleIdRegex);
-          getOrCreateArticle(publisherDomain, articleId, url).then((res) => {
-            console.time('getSnippet');
-            resolve(res);
-          }).catch((err) =>{
-            console.time('getSnippet');
-            console.error(`getSnippet - unable to process url`, err);
-            reject(err);
-          });
+          let articleId = getArtcileId(url, publisher.articleIdRegex);
+          console.log(`getSnippet: Processing artilce id [${articleId}] from [${publisherDomain}]`);
+
+          if(!articleId) {
+            reject({error: `unable to get article id from [${url}]`});
+          } else {
+            getOrCreateArticle(publisherDomain, articleId, url).then(resolve).catch(reject);
+          }
         }
       });
     }
