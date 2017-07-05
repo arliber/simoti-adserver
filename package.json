@@ -11,6 +11,8 @@
   "dependencies": {
     "@google-cloud/datastore": "^1.0.2",
     "cors": "^2.8.3",
+    "mustache": "^2.3.0",
+    "request": "^2.81.0",
     "serverless-google-cloudfunctions": "^1.1.0"
   }
 }

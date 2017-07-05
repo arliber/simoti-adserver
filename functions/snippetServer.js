@@ -1,7 +1,15 @@
-var datastore = require('@google-cloud/datastore')({
+'use strict';
+
+global.__base = __dirname + '/';
+
+let datastore = require('@google-cloud/datastore')({
   projectId: 'simoti-171512',
-  keyFilename: './keyfile.json'
+  keyFilename: __base + 'keyfile.json'
 });
+let datastoreModel = require(__base + '../datastore.model');
+let request = require('request');
+
+const scraperUrl = 'https://simoti-171512.appspot.com/';
 
 function getPublisherDomain(url) {
   const regex = /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(?:m\.)?([^:\/\n]+)/ig;
@@ -13,21 +21,6 @@ function getPublisherDomain(url) {
   } else {
     return groups[1];
   }
-}
-
-function getPublisherByDomain(publisherDomain) {
-  let key = datastore.key(['publishers', publisherDomain]);
-  return datastore.get(key).then((publishers) => {
-    if(!publishers[0]) {
-      console.error(`getPublisherByDomain: Publisher [${publisherDomain}] was not found`);
-      return null;    
-    } else {
-      return publishers[0];
-    }
-  }).catch((err) => {
-    console.error(`getPublisherByDomain: Searching for publisher [${publisherDomain}] errored`, err);
-    return null;
-  });
 }
 
 function getArtcileId(url, articleIdRegex) {
@@ -49,20 +42,6 @@ function isArticleValid(article) {
   return isValid;
 }
 
-function getArticleById(publisherId, articleId) {
-  let key = datastore.key(['publishers', publisherId, 'articles', articleId]);
-  return datastore.get(key).then((articles) => {
-    if(!articles[0]) {
-      console.error(`getArticleById: Unable to find article id [${articleId}] for publisher id [${publisherId}]`);
-      return null;
-    } else {
-      return articles[0];
-    }
-  }).catch((e) => {
-    console.error(`getArticleById: Error in searching for article id [${articleId}] for publisher id [${publisherId}]`, err);
-  });
-}
-
 function saveNewArticle(publisherId, articleId, articleUrl) {
   const key = datastore.key(['publishers', publisherId, 'articles', articleId]);
   const entity = {
@@ -75,7 +54,7 @@ function saveNewArticle(publisherId, articleId, articleUrl) {
   return datastore.save(entity);
 }
 
-function getOrCreateArticle(publisherId, articleId, articleUrl) {
+function getOrCreateArticle(publisherId, publisherLanguage, articleId, articleUrl) {
   return new Promise((resolve, reject) => {
     let transaction = datastore.transaction();
     transaction.run(function(err) {
@@ -83,7 +62,7 @@ function getOrCreateArticle(publisherId, articleId, articleUrl) {
         console.error(`getOrCreateArticle: Unable to create transaction while processing article [${articleUrl}]`);
         reject({error: 'unable to create transaction'});
       } else {
-        getArticleById(publisherId, articleId).then((article) => {
+        datastoreModel.getArticleById(publisherId, articleId).then((article) => {
           if(article) { // Exists - return 
             if(isArticleValid(article)) {
               const snippet = Object.assign({}, article.snippetProperties, { html: article.snippetHTML })
@@ -92,10 +71,11 @@ function getOrCreateArticle(publisherId, articleId, articleUrl) {
               resolve({});
             }
           } else { // Doesn't exist - create
-            saveNewArticle(publisherId, articleId, articleUrl).then((err) => {
+            saveNewArticle(publisherId, articleId, articleUrl).then(() => {
               transaction.commit().catch((err) => {
                 console.error(`getOrCreateArticle: Unable to commit after successful article save`);
               });
+              processNewArticle(publisherId, publisherLanguage, articleId, articleUrl)
               resolve({});
             }).catch((err) => {
               transaction.commit().catch((err) => {
@@ -110,6 +90,31 @@ function getOrCreateArticle(publisherId, articleId, articleUrl) {
     }); //Transaction
   }); // Promise
 } // EOF
+
+function processNewArticle(publisherId, publisherLanguage, articleId, articleUrl) {
+
+  const data = {
+      publisher: publisherId,
+      articleNumber: articleId, // TODO: Change articleNumber to artcileId in scaper
+      url: articleUrl,
+      language: publisherLanguage
+  };
+
+  console.log(`processNewArticle: Making a requrest to [${scraperUrl}] with data `, data);
+
+  request({
+    url: scraperUrl,
+    method: 'POST',
+    json: data
+  }, (err, response, body) => {
+      if(err) {
+        console.error(`processNewArticle: Error in sending reqeust to [${scraperUrl}] with data `, data)
+      } else {
+        console.log(`processNewArticle:  Scraper finished with response `, body);
+      }
+  });
+
+}
 
 exports.getSnippet = (url) => {
   
@@ -127,7 +132,7 @@ exports.getSnippet = (url) => {
     if(!publisherDomain) {
       reject({error: 'publisher not found'});
     } else {
-      getPublisherByDomain(publisherDomain)
+      datastoreModel.getPublisherById(publisherDomain)
       .then((publisher) => {
         if(!publisher) {
           reject({error: `publisher [${publisherDomain}] does not exist`});
@@ -138,7 +143,7 @@ exports.getSnippet = (url) => {
           if(!articleId) {
             reject({error: `unable to get article id from [${url}]`});
           } else {
-            getOrCreateArticle(publisherDomain, articleId, url).then(resolve).catch(reject);
+            getOrCreateArticle(publisherDomain, publisher.language, articleId, url).then(resolve).catch(reject);
           }
         }
       });
