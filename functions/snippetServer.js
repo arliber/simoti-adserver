@@ -4,9 +4,10 @@ global.__base = __dirname + '/';
 
 let datastore = require('@google-cloud/datastore')({
   projectId: 'simoti-171512',
-  keyFilename: __base + 'keyfile.json'
+  keyFilename: __base + '../keyfile.json'
 });
 let datastoreModel = require(__base + '../datastore.model');
+let articleModel = require(__base + 'models/article.model.js');
 let request = require('request');
 
 const scraperUrl = 'https://simoti-171512.appspot.com/';
@@ -46,10 +47,10 @@ function saveNewArticle(publisherId, articleId, articleUrl) {
   const key = datastore.key(['publishers', publisherId, 'articles', articleId]);
   const entity = {
       key,
-      data: {
+      data: articleModel({
         status: 'pending',
         url: articleUrl
-      }
+      })
   };
   return datastore.save(entity);
 }
@@ -59,7 +60,7 @@ function getOrCreateArticle(publisherId, publisherLanguage, articleId, articleUr
     let transaction = datastore.transaction();
     transaction.run(function(err) {
       if (err) {
-        console.error(`getOrCreateArticle: Unable to create transaction while processing article [${articleUrl}]`);
+        console.error(`getOrCreateArticle: Unable to create transaction while processing article [${articleUrl}]`, err);
         reject({error: 'unable to create transaction'});
       } else {
         datastoreModel.getArticleById(publisherId, articleId).then((article) => {
@@ -73,9 +74,9 @@ function getOrCreateArticle(publisherId, publisherLanguage, articleId, articleUr
           } else { // Doesn't exist - create
             saveNewArticle(publisherId, articleId, articleUrl).then(() => {
               transaction.commit().catch((err) => {
-                console.error(`getOrCreateArticle: Unable to commit after successful article save`);
+                console.error(`getOrCreateArticle: Unable to commit after successful article save`, err);
               });
-              processNewArticle(publisherId, publisherLanguage, articleId, articleUrl)
+              processNewArticle(publisherId, publisherLanguage, articleId, articleUrl);
               resolve({});
             }).catch((err) => {
               transaction.commit().catch((err) => {
@@ -89,15 +90,15 @@ function getOrCreateArticle(publisherId, publisherLanguage, articleId, articleUr
       }// Else
     }); //Transaction
   }); // Promise
-} // EOF
+}
 
 function processNewArticle(publisherId, publisherLanguage, articleId, articleUrl) {
 
   const data = {
-      publisher: publisherId,
-      articleNumber: articleId, // TODO: Change articleNumber to artcileId in scaper
-      url: articleUrl,
-      language: publisherLanguage
+    publisher: publisherId,
+    articleNumber: articleId, // TODO: Change articleNumber to artcileId in scaper
+    url: articleUrl,
+    language: publisherLanguage
   };
 
   console.log(`processNewArticle: Making a requrest to [${scraperUrl}] with data `, data);
@@ -123,8 +124,8 @@ exports.getSnippet = (url) => {
 
   return new Promise((s, e) => {
     // resolve/reject helpers
-    resolve = (val) => { console.timeEnd('getSnippet'); s(val); };
-    reject = (val) => { console.timeEnd('getSnippet'); e(val); };
+    let resolve = (val) => { console.timeEnd('getSnippet'); s(val); };
+    let reject = (val) => { console.timeEnd('getSnippet'); e(val); };
 
     const publisherDomain = getPublisherDomain(url);
     console.log(`getSnippet: Publisher domain [${publisherDomain}]`);
