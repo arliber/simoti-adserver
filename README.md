@@ -1,0 +1,3 @@
+## Deploy
+
+`serverless deploy`

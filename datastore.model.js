@@ -10,7 +10,7 @@ let datastore = require('@google-cloud/datastore')({
 function getSnippetById(snippetId) {
   let key = datastore.key(['snippets', snippetId]);
   return datastore.get(key).then((snippets) => {
-    if(!snippets[0]) {
+    if (!snippets[0]) {
       console.error(`getSnippetById: Unable to find snippet id [${snippetId}]`);
       return null;
     } else {
@@ -24,7 +24,7 @@ function getSnippetById(snippetId) {
 function getArticleById(publisherId, articleId) {
   let key = datastore.key(['publishers', publisherId, 'articles', articleId]);
   return datastore.get(key).then((articles) => {
-    if(!articles[0]) {
+    if (!articles[0]) {
       console.error(`getArticleById: Unable to find article id [${articleId}] for publisher id [${publisherId}]`);
       return null;
     } else {
@@ -38,9 +38,9 @@ function getArticleById(publisherId, articleId) {
 function getPublisherById(publisherId) {
   let key = datastore.key(['publishers', publisherId]);
   return datastore.get(key).then((publishers) => {
-    if(!publishers[0]) {
+    if (!publishers[0]) {
       console.error(`getPublisherByDomain: Publisher [${publisherId}] was not found`);
-      return null;    
+      return null;
     } else {
       return publishers[0];
     }

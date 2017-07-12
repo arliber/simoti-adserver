@@ -10,7 +10,7 @@ let datastoreModel = require(__base + '../datastore.model');
 let articleModel = require(__base + 'models/article.model.js');
 let request = require('request');
 
-const scraperUrl = 'https://simoti-171512.appspot.com/';
+const scraperUrl = 'https://simoti-171512.appspot.com/scrapeArticle';
 
 function getPublisherDomain(url) {
   const regex = /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(?:m\.)?([^:\/\n]+)/ig;
@@ -95,9 +95,9 @@ function getOrCreateArticle(publisherId, publisherLanguage, articleId, articleUr
 function processNewArticle(publisherId, publisherLanguage, articleId, articleUrl) {
 
   const data = {
-    publisher: publisherId,
-    articleNumber: articleId, // TODO: Change articleNumber to artcileId in scaper
-    url: articleUrl,
+    publisherId: publisherId,
+    articleId: articleId,
+    articleUrl: articleUrl,
     language: publisherLanguage
   };
 
