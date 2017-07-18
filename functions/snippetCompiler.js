@@ -7,7 +7,7 @@ let datastore = require('@google-cloud/datastore')({
   keyFilename: __base + '../keyfile.json'
 });
 let datastoreModel = require(__base + '../datastore.model');
-let articleModel = require(__base + '../models/article.model.js');
+let articleModel = require(__base + 'models/article.model.js');
 let mustache = require('mustache');
 
 exports.applySnippet = (snippetId, publisherId, articleId) => {
@@ -38,7 +38,8 @@ function compileSnippet(tempalte, snippet) {
 
 function saveArticleSnippet(article, snippetContent) {
   article.snippetHTML = snippetContent;
-
+  article.status = 'assigned';
+  
   return datastore.save({
     key: article[datastore.KEY],
     data: articleModel(article)

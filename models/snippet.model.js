@@ -7,27 +7,27 @@ module.exports = (rawSnippet) => {
     {
       name: 'title',
       value: rawSnippet.title ? rawSnippet.title : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'content',
       value: rawSnippet.content ? rawSnippet.content : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'actionButtonText',
       value: rawSnippet.actionButtonText ? rawSnippet.actionButtonText : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'actionButtonURL',
       value: rawSnippet.actionButtonURL ? rawSnippet.actionButtonURL : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'creditLine1',
       value: rawSnippet.creditLine1 ? rawSnippet.creditLine1 : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'creditLine2',
@@ -37,61 +37,61 @@ module.exports = (rawSnippet) => {
     {
       name: 'creditLineImageURL',
       value: rawSnippet.creditLineImageURL ? rawSnippet.creditLineImageURL : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'publishersBlackList',
-      value: rawSnippet.publishersBlackList ? rawSnippet.publishersBlackList : [],
-      excludeFromIndexes: true
+      value: rawSnippet.publishersBlackList ? rawSnippet.publishersBlackList : [NaN],
+      excludeFromIndexes: false
     },
     {
       name: 'wordsBlackList',
-      value: rawSnippet.wordsBlackList ? rawSnippet.wordsBlackList : [],
-      excludeFromIndexes: true
+      value: rawSnippet.wordsBlackList ? rawSnippet.wordsBlackList : [NaN],
+      excludeFromIndexes: false
     },
     {
       name: 'status',
       value: rawSnippet.status ? rawSnippet.status : 'active',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'tags',
-      value: rawSnippet.tags ? rawSnippet.tags : [],
-      excludeFromIndexes: true
+      value: rawSnippet.tags ? rawSnippet.tags : [NaN],
+      excludeFromIndexes: false
     },
     {
       name: 'createDate',
-      value: rawSnippet.createDate ? rawSnippet.createDate : '',
-      excludeFromIndexes: true
+      value: rawSnippet.createDate ? rawSnippet.createDate : new Date(),
+      excludeFromIndexes: false
     },
     {
       name: 'updateDate',
-      value: rawSnippet.updateDate ? rawSnippet.updateDate : '',
-      excludeFromIndexes: true
+      value: rawSnippet.updateDate ? rawSnippet.updateDate : new Date(),
+      excludeFromIndexes: false
     },
     {
       name: 'language',
       value: rawSnippet.language ? rawSnippet.language : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'clickTrackingLink',
       value: rawSnippet.clickTrackingLink ? rawSnippet.clickTrackingLink : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'impressionTrackingLink',
       value: rawSnippet.impressionTrackingLink ? rawSnippet.impressionTrackingLink : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'wordPouch',
-      value: rawSnippet.wordPouch ? rawSnippet.wordPouch : [],
+      value: rawSnippet.wordPouch ? rawSnippet.wordPouch : [NaN],
       excludeFromIndexes: true
     },
     {
       name: 'wordPouchScores',
-      value: rawSnippet.wordPouchScores ? rawSnippet.wordPouchScores : [],
+      value: rawSnippet.wordPouchScores ? rawSnippet.wordPouchScores : [NaN],
       excludeFromIndexes: true
     }
   ];

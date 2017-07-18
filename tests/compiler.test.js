@@ -1,6 +1,6 @@
 const snippetCompiler = require('../functions/snippetCompiler');
 
-snippetCompiler.applySnippet(5649391675244544, 'gadgety.co.il', '183059')
+snippetCompiler.applySnippet(5664248772427776, 'gadgety.co.il', '183766')
 .then((result) => {
   console.log(result);
 })

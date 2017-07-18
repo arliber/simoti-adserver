@@ -5,7 +5,7 @@ module.exports = (rawArticle) => {
     {
       name: 'title',
       value: rawArticle.title ? rawArticle.title : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'content',
@@ -15,12 +15,12 @@ module.exports = (rawArticle) => {
     {
       name: 'url',
       value: rawArticle.url ? rawArticle.url : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'status',
       value: rawArticle.status ? rawArticle.status : '',
-      excludeFromIndexes: true
+      excludeFromIndexes: false
     },
     {
       name: 'snippetProperties',
