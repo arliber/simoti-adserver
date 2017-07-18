@@ -11,6 +11,7 @@ let articleModel = require(__base + 'models/article.model.js');
 let mustache = require('mustache');
 
 exports.applySnippet = (snippetId, publisherId, articleId) => {
+  console.log(`snippetCompiler - applySnippet: Working on snippet [${snippetId}] for publisher [${publisherId}] and article [${articleId}]`);
   return Promise.all([
           datastoreModel.getSnippetById(snippetId), 
           datastoreModel.getArticleById(publisherId, articleId),
@@ -22,8 +23,10 @@ exports.applySnippet = (snippetId, publisherId, articleId) => {
             console.error(`applySnippet: snippet id ${snippetId} - ${snippet?'FOUND':'NOT FOUND'}, article id ${articleId} for publisher ${publisherId} - ${article?'FOUND':'NOT FOUND'}, publisher ${publisherId} - ${publisher?'FOUND':'NOT FOUND'}`, 
                           snippet, article, publisher);
           } else {
-            const snippetContent = compileSnippet(publisher.template, snippet);
-            return saveArticleSnippet(article, snippetContent);
+            const snippetContent = compileSnippet(publisher, snippet);
+            if (snippetContent) {
+              return saveArticleSnippet(article, snippetContent);
+            }
           }
         })
         .catch((err) => {
@@ -32,8 +35,15 @@ exports.applySnippet = (snippetId, publisherId, articleId) => {
         });
 };
 
-function compileSnippet(tempalte, snippet) {
-  return mustache.render(tempalte, snippet);
+function compileSnippet(publisher, snippet) {
+  let templateField = `template_${snippet.template ? snippet.template : 'default'}`;
+  let template = publisher[templateField];
+  if (!template) {
+    console.error(`snippetCompiler - compileSnippet: Unable to find tempalte [${templateField}] for publisher [${publisher[datastore.KEY].name}]`)
+    return false;
+  } else {
+    return mustache.render(template, snippet);
+  }
 }
 
 function saveArticleSnippet(article, snippetContent) {

@@ -5,6 +5,11 @@ module.exports = (rawSnippet) => {
 
   return [
     {
+      name: 'template',
+      value: rawSnippet.template ? rawSnippet.template : 'default',
+      excludeFromIndexes: false
+    },
+    {
       name: 'title',
       value: rawSnippet.title ? rawSnippet.title : '',
       excludeFromIndexes: false
