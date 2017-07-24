@@ -7,6 +7,15 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Duplcaite snippet",
+      "program": "${workspaceRoot}/utils/duplicateSnippet.js",
+      "args": [
+        5760820306771968
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Launch Program",
       "program": "${workspaceRoot}/tests/compiler.test.js"
     }
