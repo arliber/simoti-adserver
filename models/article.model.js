@@ -31,6 +31,21 @@ module.exports = (rawArticle) => {
       name: 'snippetHTML',
       value: rawArticle.snippetHTML ? rawArticle.snippetHTML : '',
       excludeFromIndexes: true
+    },
+    {
+      name: 'snippetId',
+      value: rawArticle.snippetId ? rawArticle.snippetId : [],
+      excludeFromIndexes: false
+    },
+    {
+      name: 'createDate',
+      value: rawArticle.createDate ? rawArticle.createDate : new Date(),
+      excludeFromIndexes: false
+    },
+    {
+      name: 'updateDate',
+      value: rawArticle.updateDate ? rawArticle.updateDate : new Date(),
+      excludeFromIndexes: false
     }
   ];
 };

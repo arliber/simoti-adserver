@@ -25,7 +25,7 @@ exports.applySnippet = (snippetId, publisherId, articleId) => {
           } else {
             const snippetContent = compileSnippet(publisher, snippet);
             if (snippetContent) {
-              return saveArticleSnippet(article, snippetContent);
+              return saveArticleSnippet(article, snippetId, snippetContent);
             }
           }
         })
@@ -46,10 +46,12 @@ function compileSnippet(publisher, snippet) {
   }
 }
 
-function saveArticleSnippet(article, snippetContent) {
+function saveArticleSnippet(article, snippetId, snippetContent) {
   article.snippetHTML = snippetContent;
   article.status = 'assigned';
-  
+  article.snippetId = article.snippetId ? article.snippetId : []; // Some article might not have snippetId property
+  article.snippetId.push(snippetId)
+
   return datastore.save({
     key: article[datastore.KEY],
     data: articleModel(article)
