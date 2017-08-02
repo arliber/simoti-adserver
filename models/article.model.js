@@ -34,7 +34,7 @@ module.exports = (rawArticle) => {
     },
     {
       name: 'snippetId',
-      value: rawArticle.snippetId ? rawArticle.snippetId : [],
+      value: rawArticle.snippetId ? rawArticle.snippetId : ['empty'],
       excludeFromIndexes: false
     },
     {

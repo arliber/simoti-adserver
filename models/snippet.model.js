@@ -15,6 +15,11 @@ module.exports = (rawSnippet) => {
       excludeFromIndexes: false
     },
     {
+      name: 'searchQuery',
+      value: rawSnippet.searchQuery ? rawSnippet.searchQuery : '',
+      excludeFromIndexes: false
+    },
+    {
       name: 'content',
       value: rawSnippet.content ? rawSnippet.content : '',
       excludeFromIndexes: false
@@ -46,12 +51,12 @@ module.exports = (rawSnippet) => {
     },
     {
       name: 'publishersBlackList',
-      value: rawSnippet.publishersBlackList ? rawSnippet.publishersBlackList : [NaN],
+      value: rawSnippet.publishersBlackList ? rawSnippet.publishersBlackList : ['empty'],
       excludeFromIndexes: false
     },
     {
       name: 'wordsBlackList',
-      value: rawSnippet.wordsBlackList ? rawSnippet.wordsBlackList : [NaN],
+      value: rawSnippet.wordsBlackList ? rawSnippet.wordsBlackList : ['empty'],
       excludeFromIndexes: false
     },
     {
@@ -61,7 +66,7 @@ module.exports = (rawSnippet) => {
     },
     {
       name: 'tags',
-      value: rawSnippet.tags ? rawSnippet.tags : [NaN],
+      value: rawSnippet.tags ? rawSnippet.tags : ['empty'],
       excludeFromIndexes: false
     },
     {
@@ -91,12 +96,12 @@ module.exports = (rawSnippet) => {
     },
     {
       name: 'wordPouch',
-      value: rawSnippet.wordPouch ? rawSnippet.wordPouch : [NaN],
+      value: rawSnippet.wordPouch ? rawSnippet.wordPouch : ['empty'],
       excludeFromIndexes: true
     },
     {
       name: 'wordPouchScores',
-      value: rawSnippet.wordPouchScores ? rawSnippet.wordPouchScores : [NaN],
+      value: rawSnippet.wordPouchScores ? rawSnippet.wordPouchScores : ['empty'],
       excludeFromIndexes: true
     }
   ];

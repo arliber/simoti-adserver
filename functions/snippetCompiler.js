@@ -49,8 +49,14 @@ function compileSnippet(publisher, snippet) {
 function saveArticleSnippet(article, snippetId, snippetContent) {
   article.snippetHTML = snippetContent;
   article.status = 'assigned';
-  article.snippetId = article.snippetId ? article.snippetId : []; // Some article might not have snippetId property
-  article.snippetId.push(snippetId)
+
+  let idsSet = new Set(article.snippetId ? article.snippetId : []); // Some articles might not have snippetId property
+  idsSet.delete('empty'); // Clean up default value
+  idsSet.delete('NaN'); // Clean up legacy placeholder
+  idsSet.delete(NaN); // Clean up legacy placeholder
+  idsSet.add(snippetId);
+
+  article.snippetId = [...idsSet]
 
   return datastore.save({
     key: article[datastore.KEY],
