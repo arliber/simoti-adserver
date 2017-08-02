@@ -8,7 +8,7 @@ function saveNewSnippet() {
   const key = datastore.key(['snippets']);
   const entity = {
     key,
-    data: snippetModel()
+    data: snippetModel({title: '[NEW]'})
   };
   return datastore.save(entity);
 }
