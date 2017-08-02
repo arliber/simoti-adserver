@@ -19,6 +19,7 @@ function duplciateSnippet(snipeptId) {
     if (!snippet) {
       console.error(`duplciateSnippet: Snippet ${snipeptId} not found`);
     } else {
+      snippet.title = '[DUPLICATE] ' + (snippet.title ? snippet.title : '');
       return saveNewSnippet(snippet);
     }
   })
