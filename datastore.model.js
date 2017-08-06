@@ -63,10 +63,24 @@ function getArticlesByStatus(status) {
   });
 }
 
+function getArticlesBySnippetId(snippetId) {
+  return new Promise((resolve, reject) => {
+    let query = datastore.createQuery('articles').filter('snippetId', '=', snippetId);
+    query.run((err, articles, info) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(articles);
+      }
+    });
+  });
+}
+
 /* Export */
 module.exports = {
   getSnippetById,
   getArticleById,
   getPublisherById,
-  getArticlesByStatus
+  getArticlesByStatus,
+  getArticlesBySnippetId
 };

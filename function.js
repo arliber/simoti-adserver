@@ -45,6 +45,22 @@ module.exports.applySnippet = (req, res) => {
   });
 };
 
+module.exports.reapplySnippet = (req, res) => {
+  var corsFn = cors();
+  corsFn(req, res, function () {
+    if (!req.body.snippetId) {
+      console.error('reapplySnippet: snippet id is missing');
+      res.status(404).send({ error: 'missing snippet id' });
+    } else {
+      snippetCompiler.reapplySnippet(req.body.snippetId).then((result) => {
+        res.status(200).send({processedArticles: result.length});
+      }).catch((err) => {
+        res.status(500).send(err);
+      });
+    }
+  });
+};
+
 exports.event = (event, callback) => {
   callback();
 };

@@ -31,6 +31,10 @@ functions:
     handler: applySnippet
     events:
       - http: path
+  reapplySnippet:
+    handler: reapplySnippet
+    events:
+      - http: path
 
   # NOTE: the following uses an "event" event (pubSub event in this case).
   # Please create the corresponding resources in the Google Cloud
