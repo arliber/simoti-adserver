@@ -43,13 +43,14 @@ function isArticleValid(article) {
   return isValid;
 }
 
-function saveNewArticle(publisherId, articleId, articleUrl) {
+function saveNewArticle(publisherId, articleId, articleUrl, publisherLanguage) {
   const key = datastore.key(['publishers', publisherId, 'articles', articleId]);
   const entity = {
       key,
       data: articleModel({
         status: 'pending',
-        url: articleUrl
+        url: articleUrl,
+        language: publisherLanguage
       })
   };
   return datastore.save(entity);
@@ -72,7 +73,7 @@ function getOrCreateArticle(publisherId, publisherLanguage, articleId, articleUr
               resolve({});
             }
           } else { // Doesn't exist - create
-            saveNewArticle(publisherId, articleId, articleUrl).then(() => {
+            saveNewArticle(publisherId, articleId, articleUrl, publisherLanguage).then(() => {
               transaction.commit().catch((err) => {
                 console.error(`getOrCreateArticle: Unable to commit after successful article save`, err);
               });

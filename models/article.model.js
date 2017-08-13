@@ -23,6 +23,11 @@ module.exports = (rawArticle) => {
       excludeFromIndexes: false
     },
     {
+      name: 'language',
+      value: rawArticle.language ? rawArticle.language : '',
+      excludeFromIndexes: false
+    },
+    {
       name: 'snippetProperties',
       value: rawArticle.snippetProperties ? rawArticle.snippetProperties : {},
       excludeFromIndexes: true
